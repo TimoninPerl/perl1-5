@@ -1,1 +1,18 @@
+use strict;
+use warnings;
 
+#список пользователей и паролей
+my %users_prms = (
+    Ivan => 'test',
+    Petr => 'password',
+);
+
+#ввод данных их параметров
+my ($user_name, $password) = @ARGV;
+
+# Проверка существования пользователя и соответствия пароля
+if ( exists $users_prms{$user_name} && $users_prms{$user_name} eq $password ) {
+    print "Добро пожаловать, $user_name!\n";
+} else {
+    print "Неверный логин или пароль.\n";
+}
