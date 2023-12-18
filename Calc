@@ -1,1 +1,32 @@
- 
+use strict;
+use warnings;
+use IO::Handle;
+
+STDOUT->autoflush(1);   #для  отображения сообщения до ввода данных с клавиатуры
+print "Введите выражение (число оператор число): ";
+chomp( my $input = <STDIN> );
+
+#убираем пробелы, разносим значения по переменным
+my ( $num1, $operator, $num2 ) = split( /\s+/, $input );
+
+#расчет результата в зависимости от оператора
+my $result;
+if ( $operator eq '+' ) {
+    $result = $num1 + $num2;
+} elsif ( $operator eq '-' ) {
+    $result = $num1 - $num2;
+} elsif ( $operator eq '*' ) {
+    $result = $num1 * $num2;
+} elsif ( $operator eq '/'  && ( $num2 != 0 )) {
+    $result = $num1 / $num2;
+} else {
+    if ($num2 == 0) { 
+        print "Ошибка: деление на ноль\n"; 
+        exit;
+        }
+    print "Неверный оператор: $operator\n";
+    exit;
+}
+
+# Вывод результата
+print "Результат: $num1 $operator $num2 = $result\n";
