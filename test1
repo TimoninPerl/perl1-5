@@ -1,1 +1,27 @@
+use strict;
+use warnings;
+use IO::Handle;
 
+#список пользователей
+my @users_list = ( 'Ivan', 'Petr', 'Andrey' );
+
+
+STDOUT->autoflush( 1 ); #для  отображения сообщения до ввода данных с клавиатуры
+print "Введите имя пользователя: ";
+chomp( my $user_name = <STDIN> );
+my $find = 0;
+
+#поиск пользователя в БД
+for my $user (@users_list) {
+    if ($user eq $user_name) {
+        $find = 1;
+        last; #досрочный выход если не пользователь найден
+    }
+}
+
+#результирующий ответ
+if ($find) {
+    print "Добро пожаловать, $user_name!\n";
+} else {
+    print "Ты кто такой, $user_name?!\n";
+}
