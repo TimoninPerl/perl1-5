@@ -2,37 +2,74 @@ use strict;
 use warnings;
 use IO::Handle;
 
-STDOUT->autoflush(1);   #для  отображения сообщения до ввода данных с клавиатуры
-print "Введите выражение (число оператор число): ";
-chomp( my $input = <STDIN> );
+STDOUT->autoflush( 1 );
 
-#убираем пробелы, разносим значения по переменным
-my ( $num1, $operator, $num2 ) = split( /\s+/, $input );
+#для расчета
+sub _calculate {
+    my ( $total, $expr ) = @_; #принимаем текущий результат и новое выражение
 
-#проверка на ввод чисел, в тои числе и вещественных
-if ( $num1 !~ /^-?\d+\.?\d*$/ || $num2 !~ /^-?\d+\.?\d*$/ ) {
-    print "Ошибка: оба значения должны быть числами.\n";
-    exit;
-}
+    #добавляем текущий общий результат к выражению, если оно начинается с оператора
+    if ( $expr =~ /^\s*[-+*\/]\s*-?\d/ ) {
+        $expr = $total . " " . $expr;
+    }
+    #разделяем выражение на числа и операторы
+    my @parts = split( /\s*([-+*\/])\s*/, $expr );
 
-#расчет результата в зависимости от оператора
-my $result;
-if ( $operator eq '+' ) {
-    $result = $num1 + $num2;
-} elsif ( $operator eq '-' ) {
-    $result = $num1 - $num2;
-} elsif ( $operator eq '*' ) {
-    $result = $num1 * $num2;
-} elsif ( $operator eq '/'  && ( $num2 != 0 )) {
-    $result = $num1 / $num2;
-} else {
-    if ($num2 == 0) { 
-        print "Ошибка: деление на ноль\n"; 
-        exit;
+    $total = shift @parts;
+    while ( @parts ) {
+        my $operator = shift @parts;
+        my $next_num = shift @parts;
+
+        # Выполнение операций
+        if ($operator eq '+') {
+            $total += $next_num;
+        } elsif ( $operator eq '-' ) {
+            $total -= $next_num;
+        } elsif ( $operator eq '*' ) {
+            $total *= $next_num;
+        } elsif ( $operator eq '/' ) {
+            return "Ошибка: деление на ноль" if $next_num == 0;
+            $total /= $next_num;
         }
-    print "Неверный оператор: $operator\n";
-    exit;
+    }
+    return $total;     #вывод результат операции, либо ошибка
 }
 
-# Вывод результата
-print "Результат: $num1 $operator $num2 = $result\n";
+#очистка прошлого вывода в зависимости от системы
+sub _clear_screen {
+    if ($^O eq 'MSWin32') { system("cls"); }
+    else { system("clear"); }
+}
+
+my $total = 0;         #результат
+my $expression = "0";  #все операции которые ввел пользователь
+
+while ( 1 ) {
+    _clear_screen();
+    print "Текущий результат: $total\n";
+    print "Введите операцию (или '=' для завершения): ";
+    chomp( my $input = <STDIN> );
+
+    if ( $input eq '=' ) {
+        last;
+    }
+    
+    #Проверка корректности ввода
+    if ( $input !~ /^([-+*\/] \s* -?\d+(\.\d+)?(?: \s* [-+*\/] \s* -?\d+(\.\d+)?)*)$/x ) {
+        print "Ошибка ввода. Попробуйте еще раз.\n";
+        next;
+    }
+
+    # Выполнение расчета
+    my $result = _calculate( $total, $input );
+    if ( $result =~ /^Ошибка:/ ) {
+        print "$result\n";
+    } else {
+        $input =~ s/\s+//g; # Удаление всех пробелов из ввода для красоты
+        $expression .= $input;
+        $total = $result;
+    }
+}
+
+print "Результат: $expression = $total\n";
+exit;
