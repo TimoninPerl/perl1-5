@@ -1,1 +1,108 @@
- 
+use strict;
+use warnings;
+use IO::Handle;
+
+STDOUT->autoflush( 1 ); # Автоматически сбрасывать буфер вывода после каждой операции вывода
+
+# Функция для выполнения расчета
+sub _calculate {
+    my ( $total, $expr ) = @_; # Принимаем текущий общий результат и новое выражение
+
+    # Если ввод начинается с оператора, добавляем текущий общий результат к выражению
+    if ( $expr =~ /^\s*[-+*\/]\s*-?\d/ ) {
+        $expr = $total . " " . $expr;
+    }
+
+    # Разделяем выражение на числа и операторы
+    my @parts = split( /\s*([-+*\/])\s*/, $expr );
+
+    # Начальное значение для агрегации результатов
+    $total = shift @parts;
+    while ( @parts ) {
+        my $operator = shift @parts; # Оператор
+        my $next_num = shift @parts; # Следующее число
+
+        # Выполнение соответствующей операции
+        if ( $operator eq '+' ) {
+            $total += $next_num;
+        } elsif ( $operator eq '-' ) {
+            $total -= $next_num;
+        } elsif ( $operator eq '*' ) {
+            $total *= $next_num;
+        } elsif ( $operator eq '/' ) {
+            return "Ошибка: деление на ноль" if $next_num == 0; # Обработка ошибки деления на ноль
+            $total /= $next_num;
+        }
+    }
+    return $total; # Возвращаем результат выражения
+}
+
+# Функция для добавления скобок
+sub _set_priority {
+    my ( $expression, $new_operator ) = @_;
+    if ( $new_operator =~ /[*\/]/ && $expression =~ /[-+]/ ) {
+        return "($expression)";
+    }
+    return $expression;
+}
+
+# Очистка экрана, но не работает в Komodo
+sub _clear_screen {
+    if ( $^O eq 'MSWin32' ) { system( "cls" ); }
+    else { system( "clear" ); }
+}
+
+my $total = 0; # Начальное значение общего результата
+my $expression = ""; # Строка для хранения всего математического выражения
+my $first_input = 1; # Флаг для отслеживания первого ввода без оператора
+# Основной цикл программы
+while ( 1 ) {
+    _clear_screen();
+    print "Текущий результат: $total\n";
+    print "Введите операцию (или '=' для завершения): ";
+    chomp( my $input = <STDIN> );
+    
+    # Удаление начальных операторов, если они не являются частью числа
+    if ( $expression eq "0" || $expression eq "-0" ) {
+        $input =~ s/^[*+\/]//;
+    }
+    #условие выхода
+    if ( $input eq '=' ) {
+        last;
+    }
+    #првоерка если пользователь вводит числа подряд без оператора
+    if (!$first_input && $input !~ /^[-+*\/]/) {
+        print "Ошибка: каждое новое число должно предшествоваться оператором.\n";
+        next;
+    }
+
+    $first_input = 0; # сброс флага после первого ввода
+    if (
+        $input !~ /^
+        ([-+*\/]? \s* -?         # необязательный оператор в начале, пробелы, необязательный минус
+        (0|[1-9]\d*)             # либо 0, либо начинается не с 0
+        (\.\d+)?                 # необязательно вещественное
+        (?: \s* [-+*\/]\s*-?     # необязательный оператор и пробелы, после необязательный минус
+        (0|[1-9]\d*)             
+        (\.\d+)?                
+        )*)                      # Повторение предыдущего шаблона
+        $/x 
+        || $input =~ /(^|\D)0\d/ || $input eq '0') { #проверка корректности ввода на: '0', '02'
+        print "Ошибка ввода. Попробуйте еще раз.\n";
+        next; 
+    }
+
+    # выполнение расчета
+    my $result = _calculate( $total, $input );
+    if ( $result =~ /^Ошибка:/ ) {
+        print "$result\n";
+    } else {
+        $input =~ s/\s+//g;
+        $expression = _set_priority( $expression, $input );
+        $expression .= $input; 
+        $total = $result; 
+    }
+}
+#результат
+print "Результат: $expression = $total\n";
+exit; 
