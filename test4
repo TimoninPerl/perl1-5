@@ -1,1 +1,37 @@
+use strict;
+use warnings;
 
+# Функция для проверки логина и пароля
+sub _login {
+    my ($user_name, $user_password) = @_;
+    
+    my %users_prms = (
+        Ivan => 'test',
+        Petr => 'password',
+    );
+
+    if ( exists $users_prms{$user_name} && $users_prms{$user_name} eq $user_password ) {
+        return 0; # Пользователь прошел проверку
+    } else {
+        return -1; # Пользователь не прошел проверку
+    }
+}
+
+# Ввод данных из параметров
+my ($user_name, $password) = @ARGV;
+
+# Проверка наличия входных данных
+if (!defined $user_name) {
+    die "Не указано имя пользователя\n";
+}
+if (!defined $password) {
+    die "Не указан пароль\n";
+}
+
+# Вызов функции входа и обработка результатов
+my $result = _login($user_name, $password);
+if ($result == 0) {
+    print "Добро пожаловать, $user_name!\n";
+} else {
+    print "Неверный логин или пароль.\n";
+}
