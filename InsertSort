@@ -1,1 +1,60 @@
- 
+use strict;
+use warnings;
+use IO::Handle;
+
+STDOUT->autoflush(1);
+
+# Функция сортировки вставками
+sub _insert_sort {
+    my @array = @_;
+    
+    for my $i ( 1 .. $#array ) {
+        my $key = $array[$i];
+        my $j = $i - 1;
+        while ( $j >= 0 && $array[$j] > $key ) {
+            $array[$j + 1] = $array[$j];
+            $j--;
+        }
+        $array[$j + 1] = $key;
+    }
+    return @array;
+}
+
+# Функция бинарного поиска
+sub _binary_search {
+    my ($target, @array) = @_;
+    my $left = 0;
+    my $right = $#array;
+
+    while ($left <= $right) {
+        my $mid = int(($left + $right) / 2);
+        if ($array[$mid] == $target) {
+            return $mid;
+        }
+        if ($array[$mid] < $target) {
+            $left = $mid + 1;
+        } else {
+            $right = $mid - 1;
+        }
+    }
+    return -1;
+}
+
+my @array = ( 5, 3, 9, -1, 4, 6, 2, 8, 12, 9 );
+print "Исходный массив: @array\n";
+
+@array = _insert_sort( @array );
+print "Отсортированный массив: @array\n";
+
+print "Введите число для поиска: ";
+chomp( my $input = <STDIN> );
+if ( $input =~ /^-?\d+$/ ) {
+    my $result = _binary_search($input, @array);
+    if ( $result != -1 ) {
+        print "Число $input найдено в индексе $result.\n";
+    } else {
+        print "Число $input не найдено в массиве.\n";
+    }
+} else {
+    print "Ошибка: введите целое число.\n";
+} 
