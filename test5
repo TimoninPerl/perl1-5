@@ -6,9 +6,9 @@ my $conf_path = 'D:\Perl\conf.ini2';
 
 #функция для чтения файла конфигурации
 sub _read_config {
-    my ($filename) = @_;
+    my ( $filename ) = @_;
     
-    if (open my $fh, '<', $filename) {
+    if ( open my $fh, '<', $filename ) {
         my @lines = <$fh>;
         close $fh;
         return @lines;
