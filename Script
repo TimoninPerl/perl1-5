@@ -1,1 +1,89 @@
+use strict;
+use warnings;
+use utf8;
+use open ':std', ':encoding(UTF-8)';
 
+# Пути к файлам и директории
+my $dir = "D:\\Perl\\newsletter\\"; 
+my $bad_words_path = "D:\\Perl\\bad_words.txt"; #неприличные слова
+my $filename = $ARGV[0]; #пример для запуска perl D:/perl/Script.pl letter.txt
+my $filepath = $dir . $filename;               # полный путь к файлу
+
+# функция для чтения файла
+sub read_file {
+    my ( $filepath ) = @_;
+    open my $fh, '<', $filepath or do {
+        print "Не удалось открыть файл '$filepath'.\n";
+        return;
+    };
+    my @lines = <$fh>;
+    close $fh;
+    return @lines;
+}
+
+# функция подсчета слов
+sub _count_words {
+    my ( @lines ) = @_;
+    my $count = 0;
+    foreach my $line ( @lines ) {
+        $line =~ s/[[:punct:]]//g; #убираем знаки препинания
+        my @words = split( /\s+/, $line);
+        $count += scalar @words;
+    }
+    return $count;
+}
+
+# функция для поиска повторяющихся слов
+sub _find_repeated_words {
+    my ( @lines ) = @_;
+    my %word_count;
+    foreach my $line ( @lines ) {
+        $line =~ s/[[:punct:]]//g;
+        foreach my $word ( split( /\s+/, lc( $line ))) {
+            $word_count{$word}++;
+            
+        }
+    }
+    
+# сбор слов с количеством повторений больше двух
+my @repeated_words;
+foreach my $word (keys %word_count) {
+    if ( $word_count{$word} > 2 ) {
+        push @repeated_words, $word;
+    }
+}
+
+@repeated_words = sort { $word_count{$b} <=> $word_count{$a} } @repeated_words;
+
+foreach my $word ( @repeated_words ) {
+    print "Слово '$word' повторяется $word_count{$word} раз.\n";
+}
+}
+
+# Функция для проверки на неприличные слова из словаря
+sub _check_for_bad_words {
+    my ( @lines ) = @_;
+    my @bad_words = read_file( $bad_words_path );
+    chomp @bad_words; 
+    my %bad_words_hash = map { lc($_) => 1 } @bad_words;
+    
+    foreach my $line ( @lines ) {
+        $line =~ s/[[:punct:]]//g; # Убираем знаки препинания
+        foreach my $word ( split( /\s+/, lc( $line ))) {
+            if ( exists $bad_words_hash{$word} ) {
+                print "Обнаружено неприличное слово: $word\n";
+                return;
+            }
+        }
+    }
+}
+
+# Основная логика
+if ( -e $filepath ) {
+    my @lines = read_file( $filepath );
+    print "Всего слов в тексте: " . _count_words( @lines ) . "\n";
+    _find_repeated_words( @lines );
+    _check_for_bad_words( @lines );
+} else {
+    print "Файл $filename не найден в директории $dir\n";
+}
