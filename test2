@@ -1,1 +1,24 @@
+use strict;
+use warnings;
 
+
+#список пользователей
+my @users_list = ( 'Ivan', 'Petr', 'Andrey' );
+
+my $find      = 0;
+my $user_name = $ARGV[0]; #получение пользователя в качестве аргумента
+
+#поиск пользователя в БД
+for my $user (@users_list) {
+    if ($user eq $user_name) {
+        $find = 1;
+        last; #досрочный выход если не пользователь найден
+    }
+}
+
+#результирующий ответ
+if ($find) {
+    print "Добро пожаловать, $user_name!\n";
+} else {
+    print "Ты кто такой, $user_name?!\n";
+}
