@@ -22,16 +22,16 @@ sub _insert_sort {
 
 # Функция бинарного поиска
 sub _binary_search {
-    my ($target, @array) = @_;
+    my ( $target, @array ) = @_;
     my $left = 0;
     my $right = $#array;
 
-    while ($left <= $right) {
-        my $mid = int(($left + $right) / 2);
-        if ($array[$mid] == $target) {
+    while ( $left <= $right ) {
+        my $mid = int(( $left + $right ) / 2 );
+        if ( $array[$mid] == $target ) {
             return $mid;
         }
-        if ($array[$mid] < $target) {
+        if ( $array[$mid] < $target ) {
             $left = $mid + 1;
         } else {
             $right = $mid - 1;
