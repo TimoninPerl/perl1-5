@@ -2,7 +2,7 @@ use strict;
 use warnings;
 
 #путь
-my $conf_path = 'D:\Perl\conf.ini2';
+my $conf_path = 'D:\Perl\conf.ini';
 
 #функция для чтения файла конфигурации
 sub _read_config {
