@@ -1,1 +1,20 @@
-.
+use warnings;
+use strict;
+use IO::Handle;
+
+STDOUT->autoflush( 1 );   #для  отображения сообщения до ввода данных с клавиатуры
+print "Введите N, a и b через пробел: ";
+my $day_in_sprint = 10; #дней на спринт
+chomp( my $input = <STDIN> );
+
+my ( $N, $a, $b ) = split( ' ', $input );
+my $resolved = $a * $day_in_sprint;
+my $incoming = $b * $day_in_sprint;
+my $finish = $resolved > $incoming;
+#Расчет количества спринтов, и доп. проверка на бесконечную работу при а = b
+my $sprints = $finish ? int(( $N - 1 ) / ($resolved - $incoming )) + 1 : 0;
+#добавление окончания к слову в зависимости от количества спринтов
+my $suffix = ( $sprints == 1 ) ? '' : ( $sprints >= 2 && $sprints <= 4 ) ? 'а' : 'ов';
+
+#вывод результатов
+print $finish ? "Справится за $sprints спринт$suffix\n" : "Не справится\n";
