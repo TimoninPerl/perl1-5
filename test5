@@ -1,1 +1,27 @@
+use strict;
+use warnings;
 
+#путь
+my $conf_path = 'D:\Perl\conf.ini';
+
+#функция для чтения файла конфигурации
+sub _read_config {
+    my ( $filename ) = @_;
+    
+    if ( open my $fh, '<', $filename ) {
+        my @lines = <$fh>;
+        close $fh;
+        return @lines;
+    } else {
+        print "Не удалось считать конфигурацию с файла: '$filename'";
+        exit;
+    }
+}
+
+#чтение файла конфигурации
+my @conf_lines = _read_config( $conf_path );
+
+#вывод содержимого файла
+foreach my $line ( @conf_lines ) {
+    print $line;
+}
