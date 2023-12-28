@@ -3,7 +3,7 @@ use warnings;
 
 # Функция для проверки логина и пароля
 sub _login {
-    my ($user_name, $user_password) = @_;
+    my ( $user_name, $user_password ) = @_;
     
     my %users_prms = (
         Ivan => 'test',
@@ -17,20 +17,22 @@ sub _login {
     }
 }
 
-# Ввод данных из параметров
-my ($user_name, $password) = @ARGV;
+my $error_message;
+if ( !defined $user_name ) {
+    $error_message = "Не указано имя пользователя\n";
+} elsif ( !defined $password ) {
+    $error_message = "Не указан пароль\n";
+}
 
-# Проверка наличия входных данных
-if (!defined $user_name) {
-    die "Не указано имя пользователя\n";
+if ( $error_message ) {
+    print $error_message;
+    exit; 
 }
-if (!defined $password) {
-    die "Не указан пароль\n";
-}
+
 
 # Вызов функции входа и обработка результатов
-my $result = _login($user_name, $password);
-if ($result == 0) {
+my $result = _login( $user_name, $password );
+if ( $result == 0 ) {
     print "Добро пожаловать, $user_name!\n";
 } else {
     print "Неверный логин или пароль.\n";
